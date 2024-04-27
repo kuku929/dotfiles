@@ -1,0 +1,91 @@
+#custom_cursor_colors = true
+#live_config_reload = true
+
+#[bell]
+#animation = "EaseOutExpo"
+#color = "0xffffff"
+#duration = 0
+import = ["~/.config/alacritty/themes/themes/monokai_charcoal.toml"]
+[colors]
+draw_bold_text_with_bright_colors = true
+
+[colors.bright]
+black = "0x8e908c"
+blue = "0x969896"
+cyan = "0xa3685a"
+green = "0xe0e0e0"
+magenta = "0x282a2e"
+red = "0xf5871f"
+white = "0x1d1f21"
+yellow = "0xd6d6d6"
+
+[colors.cursor]
+cursor = "0x4d4d4c"
+text = "0xffffff"
+
+[colors.normal]
+black = "0xffffff"
+blue = "0x4271ae"
+cyan = "0x3e999f"
+green = "0x718c00"
+magenta = "0x8959a8"
+red = "0xc82829"
+white = "0x4d4d4c"
+yellow = "0xeab700"
+
+#[colors.primary]
+#background = "0xffffff"
+#foreground = "0x4d4d4c"
+
+#[cursor]
+#style = "Block"
+#unfocused_hollow = true
+
+#[debug]
+#log_level = "OFF"
+#persistent_logging = false
+#print_events = false
+#ref_test = false
+#render_timer = false
+
+[font]
+size = 9.0
+
+
+[font.bold]
+family = "Hack"
+style = "Medium"
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+[font.italic]
+family = "Hack"
+style = "Light Italic"
+
+[font.normal]
+family = "Hack"
+style = "Light"
+
+[font.offset]
+x = 0
+y = 0
+
+#[scrolling]
+#history = 0
+#multiplier = 3
+
+[window]
+decorations = "none"
+dynamic_padding = false
+startup_mode = "Fullscreen"
+opacity = 0.80
+
+#[window.dimensions]
+#columns = 100
+#lines = 85
+
+#[window.padding]
+#x = 0
+#y = 0
