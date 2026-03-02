@@ -23,6 +23,12 @@ font pango:Hack 13
 #wallpaper
 exec_always --no-startup-id feh --bg-scale /home/krutarth/Downloads/wallpaper.jpg
 
+# fast movement
+exec_always xset r rate 200 30
+
+# safeeyes
+exec_always safeeyes
+
 #enable opacity
 exec --no-startup-id compton
 # Start XDG autostart .desktop files using dex. See also
@@ -39,6 +45,12 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
 exec --no-startup-id nm-applet
+
+# displays the popup only if it belongs to the application
+# currently fullscreened
+popup_during_fullscreen all
+
+focus_on_window_activation smart
 
 #border
 default_border none 
@@ -70,9 +82,11 @@ tiling_drag modifier titlebar
 #do not focus on the opened window
 no_focus [all]
 
+focus_follows_mouse yes
+
 #no borders
 # start a terminal
-bindsym $mod+Return exec alacritty 
+bindsym $mod+Return exec --no-startup-id alacritty -e bash -l -c ranger
 
 #firefox
 bindsym $mod+x exec firefox
@@ -88,11 +102,13 @@ bindsym $mod+d exec --no-startup-id rofi -show drun
 # .desktop file. It is a wrapper around dmenu, so you need that installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
+set $mousemove "sh -c 'eval `xdotool getactivewindow getwindowgeometry --shell`; xdotool mousemove $((X+WIDTH/2)) $((Y+HEIGHT/2))'"
+
 # change focus
-bindsym $mod+$left focus left
-bindsym $mod+$down focus down
-bindsym $mod+$up focus up
-bindsym $mod+$right focus right
+bindsym $mod+$left focus left; exec $mousemove
+bindsym $mod+$down focus down; exec $mousemove
+bindsym $mod+$up focus up; exec $mousemove
+bindsym $mod+$right focus right; exec $mousemove
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Left focus left
@@ -149,9 +165,9 @@ bindsym $mod+minus scratchpad show
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
-set $ws1 "1: "
-set $ws2 "2:"
-set $ws3 "3:"
+set $ws1 "1  "
+set $ws2 "2  "
+set $ws3 "3  "
 set $ws4 "4"
 set $ws5 "5"
 set $ws6 "6"
@@ -221,10 +237,13 @@ bindsym $mod+r mode "resize"
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
+# NOTE: this font was installed by me( from the AUR ). It should 
+# support more glyphs.
+	font pango:Hack Nerd Font 13
 	colors {
 		background #222121
 		statusline #EEEADE #that neon blue
-		separator #EEEADE 
+		separator #EEEADE
 
 		focused_workspace  #423c3b #000000 #ffffff
 		active_workspace   #333333 #5f676a #ffffff
@@ -235,17 +254,18 @@ bar {
 }
 
 # class                 border  backgr. text    indicator child_border
-client.focused          #000000 #000000 #ffffff #000000  #cdcccc
-client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
-client.unfocused        #333333 #222222 #888888 #292d2e   #222222
-client.urgent           #2f343a #900000 #ffffff #900000   #900000
-client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
+client.focused          #4c7899 #000000 #ffffff #000000   #59645C
+client.focused_inactive #000000 #5f676a #ffffff #484e50   #000000
+client.unfocused        #333333 #222222 #888888 #292d2e   #000000
+client.urgent           #2f343a #900000 #ffffff #900000   #000000
+client.placeholder      #000000 #0c0c0c #ffffff #000000   #000000
 
-client.background       #ffffff
-
-for_window [con_id="__focused__"] border pixel 1
-for_window [class="Alacritty"]border none
+client.background       #191970
 smart_borders on
+for_window [con_id="__focused__"] border pixel 2
+for_window [class="Sublime_text"] focus
+for_window [class="Sublime_text" title="Purchase"] focus none
+for_window [instance="scratchpad"] move to scratchpad, scratchpad show
 #######################################################################
 # automatically start i3-config-wizard to offer the user to create a
 # keysym-based config which used their favorite modifier (alt or windows)

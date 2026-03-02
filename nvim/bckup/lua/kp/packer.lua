@@ -15,12 +15,15 @@ function(use)
   use "rebelot/kanagawa.nvim"
   use {
 	  'nvim-treesitter/nvim-treesitter',
-	  run = ':tsupdate'
+	  run = ':TSUpdate'
   }
   use('nvim-treesitter/playground')
   use('preservim/nerdcommenter')
-  
   use('lervag/vimtex')
+  use({
+		"iamcco/markdown-preview.nvim",
+		run = function() vim.fn["mkdp#util#install"]() end,
+  })
 end,
 config = {
 	clone_timeout = 120

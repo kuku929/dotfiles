@@ -120,6 +120,19 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 
+-- Yes, we're just executing a bunch of Vimscript, but this is the officially
+-- endorsed method; see https://github.com/L3MON4D3/LuaSnip#keymaps
+vim.cmd[[
+" Use Tab to expand and jump through snippets
+imap <silent><expr> <Tab> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>' 
+smap <silent><expr> <Tab> luasnip#jumpable(1) ? '<Plug>luasnip-jump-next' : '<Tab>'
+
+" Use Shift-Tab to jump backwards through snippets
+imap <silent><expr> <S-Tab> luasnip#jumpable(-1) ? '<Plug>luasnip-jump-prev' : '<S-Tab>'
+smap <silent><expr> <S-Tab> luasnip#jumpable(-1) ? '<Plug>luasnip-jump-prev' : '<S-Tab>'
+]]
+
+
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -334,8 +347,8 @@ require('lazy').setup({
           },
         },
       }
-
       -- Enable Telescope extensions if they are installed
+      pcall(require('telescope').load_extension, 'luasnip')
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
 
@@ -375,6 +388,25 @@ require('lazy').setup({
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
     end,
+  },
+  {
+    "L3MON4D3/LuaSnip",
+    -- follow latest release.
+    version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+    -- install jsregexp (optional!).
+    build = "make install_jsregexp",
+    config = function()
+      require("luasnip.loaders.from_lua").load({paths = "~/.config/nvim/LuaSnip/"})
+      require("luasnip").config.set_config({
+        enable_autosnippets = true,
+      })
+    end
+  },
+  {
+    "evesdropper/luasnip-latex-snippets.nvim",
+  },
+  {
+    "benfowler/telescope-luasnip.nvim",
   },
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
