@@ -10,7 +10,7 @@ if status is-interactive
 
 	eval "$(pyenv init -)"
 	eval "$(pyenv virtualenv-init -)"
-	eval "xset r rate 250 30"
+	eval "xset r rate 200 30"
 
 	set -gxa PATH "/home/krutarth/.local/bin"
 end
