@@ -29,6 +29,9 @@ exec_always xset r rate 200 30
 # safeeyes
 exec_always safeeyes
 
+# bluetooth
+exec_always blueman-applet
+
 #enable opacity
 exec --no-startup-id compton
 # Start XDG autostart .desktop files using dex. See also
@@ -250,7 +253,10 @@ bar {
 		inactive_workspace #333333 #222222 #888888
 		urgent_workspace   #2f343a #900000 #ffffff
 	}
-	status_command i3status -c /home/$USER/.config/i3status/i3status.conf
+	status_command i3status-rs /home/$USER/.config/i3status-rust/config.toml
+	tray_output primary
+	position top
+	#status_command i3status -c /home/$USER/.config/i3status/i3status.conf
 }
 
 # class                 border  backgr. text    indicator child_border
@@ -276,4 +282,4 @@ for_window [instance="scratchpad"] move to scratchpad, scratchpad show
 #
 # Please remove the following exec line:
 #######################################################################
-exec i3-config-wizard
+#exec i3-config-wizard
