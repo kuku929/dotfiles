@@ -32,6 +32,9 @@ exec_always safeeyes
 # bluetooth
 exec_always blueman-applet
 
+# notifications
+exec --no-startup-id dunst
+
 #enable opacity
 exec --no-startup-id compton
 # Start XDG autostart .desktop files using dex. See also
