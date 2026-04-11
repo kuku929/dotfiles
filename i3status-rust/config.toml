@@ -11,6 +11,12 @@ warning_fg = "#b6927b"
 
 [icons]
 icons = "awesome6"
+[icons.overrides]
+#https://www.nerdfonts.com/cheat-sheet for more icons
+#ONLY if using Hack Nerd Font
+memory_mem = "\uefc5"
+memory_swap = "SWP"
+cpu = "\uf4bc"
 
 [[block]]
 block = "battery"
@@ -18,16 +24,6 @@ format = "$icon $percentage {$time_remaining.dur(hms:true, min_unit:m) |}"
 full_format = "$icon $percentage {$time_remaining.dur(hms:true, min_unit:m) |}"
 device = "DisplayDevice"
 driver = "upower"
-
-[[block]]
-block = "disk_space"
-path = "/"
-info_type = "available"
-alert_unit = "GB"
-interval = 20
-warning = 20.0
-alert = 10.0
-format = " $icon root: $available.eng(w:2) "
 
 [[block]]
 block = "memory"
@@ -49,4 +45,17 @@ format = " $timestamp.datetime(f:'%a %d/%m %R') "
 block = "docker"
 interval = 2
 format = " $icon $running/$total "
+
+[[block]]
+block = "net"
+format = " $icon  $ssid"
+
+[[block]]
+block = "cpu"
+interval = 1
+format = " $icon $utilization "
+format_alt = " $icon $frequency{ $boost|} "
+info_cpu = 50
+warning_cpu = 50
+critical_cpu = 90
 
