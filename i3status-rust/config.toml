@@ -27,7 +27,7 @@ driver = "upower"
 
 [[block]]
 block = "memory"
-format = " $icon $mem_total_used_percents.eng(w:2) "
+format = " $icon $mem_used / $mem_total "
 format_alt = " $icon_swap $swap_used_percents.eng(w:2) "
 
 [[block]]
