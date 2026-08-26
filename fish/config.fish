@@ -13,6 +13,8 @@ if status is-interactive
 	eval "xset r rate 200 30"
 
 	set -gxa PATH "/home/krutarth/.local/bin"
+	# for installed go binaries
+	set -gxa PATH "$(go env GOPATH)/bin"
 end
 
 
@@ -23,3 +25,6 @@ end
 # This section can be safely removed at any time if needed.
 test -r '/home/krutarth/.opam/opam-init/init.fish' && source '/home/krutarth/.opam/opam-init/init.fish' > /dev/null 2> /dev/null; or true
 # END opam configuration
+
+# Pi
+fish_add_path "/home/krutarth/.local/share/pi-node/node-v22.23.2-linux-x64/bin"
