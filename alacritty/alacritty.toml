@@ -83,7 +83,9 @@ y = 0
 [window]
 decorations = "none"
 dynamic_padding = false
-startup_mode = "Fullscreen"
+# Fullscreen makes sway composite the window over a black backdrop, which
+# defeats `opacity` below. Sway tiles the window to the full workspace anyway.
+startup_mode = "Windowed"
 opacity = 0.80
 
 [general]
