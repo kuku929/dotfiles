@@ -74,6 +74,14 @@ handle_extension() {
             exiftool "${FILE_PATH}" && exit 5
             exit 1;;
 
+        ## DjVu
+        djvu)
+            ## Preview as text conversion
+            djvutxt --page=1-10 "${FILE_PATH}" | \
+              fmt -w "${PV_WIDTH}" && exit 5
+            exiftool "${FILE_PATH}" && exit 5
+            exit 1;;
+
         ## BitTorrent
         torrent)
             transmission-show -- "${FILE_PATH}" && exit 5
@@ -138,10 +146,16 @@ handle_image() {
         #           - "${IMAGE_CACHE_PATH}" < "${FILE_PATH}" \
         #           && exit 6 || exit 1;;
 
+        ## DjVu: multi-page; identify would decode every page (GBs of RAM).
+        ## Fall through to the text preview in handle_extension.
+        image/vnd.djvu)
+            return;;
+
         ## Image
         image/*)
             local orientation
-            orientation="$( identify -format '%[EXIF:Orientation]\n' -- "${FILE_PATH}" )"
+            ## [0]: read only the first frame of multi-frame images
+            orientation="$( identify -format '%[EXIF:Orientation]\n' -- "${FILE_PATH}[0]" )"
             ## If orientation data is present and the image actually
             ## needs rotating ("1" means no rotation)...
             if [[ -n "$orientation" && "$orientation" != 1 ]]; then
