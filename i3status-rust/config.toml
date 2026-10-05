@@ -48,6 +48,7 @@ format = " $icon $running/$total "
 
 [[block]]
 block = "net"
+device = "wlp0s20f3"
 format = " $icon  $ssid"
 
 [[block]]

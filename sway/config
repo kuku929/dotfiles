@@ -23,6 +23,12 @@ font pango:Hack 13
 #wallpaper
 output * bg /home/krutarth/Downloads/wallpaper.jpg fill
 
+# export session env to systemd/dbus so xdg-desktop-portal backends work
+# (without this, portal-gtk dies with "cannot open display" and file pickers never appear)
+exec_always systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE
+exec_always dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE
+exec_always systemctl --user restart xdg-desktop-portal.service
+
 # safeeyes
 exec_always safeeyes
 
@@ -32,12 +38,15 @@ exec_always blueman-applet
 # notifications
 exec --no-startup-id dunst
 
+# night light: warm 23:00-07:00 (60s fade). manual times override -l/-L (13.0033, 80.1961).
+exec wlsunset -S 07:00 -s 23:00 -d 60 -t 4000 -T 6500
+
 #enable opacity
 # compton/picom is X11-only; swayfx does compositing itself. See effects block below.
 #exec --no-startup-id compton
 # Start XDG autostart .desktop files using dex. See also
 # https://wiki.archlinux.org/index.php/XDG_Autostart
-exec --no-startup-id dex --autostart --environment i3
+exec --no-startup-id dex --autostart --environment sway
 
 # The combination of xss-lock, nm-applet and pactl is a popular choice, so
 # they are included here as an example. Modify as you see fit.
@@ -93,23 +102,24 @@ blur_saturation 1.1
 
 # --- fading -> animations ---
 # picom: fading = true; fade-in/out-step 0.03 @ fade-delta 10ms ~= 330ms
-animation_duration_ms 300
+animation_duration_ms 0
 
 # --- inactive window opacity -> dim ---
 # picom: inactive-opacity = 0.9. sway has no focus-dependent opacity,
 # so this is expressed as dim (visually similar, composites differently).
-default_dim_inactive 0.1
+# TEST-2(firefox-blank): dim is the last suspect; was 0.1
+default_dim_inactive 0.0
 dim_inactive_colors.unfocused #000000FF
 dim_inactive_colors.urgent #900000FF
 
 # picom opacity-rule exceptions: 100% focused AND unfocused
-for_window [app_id="Alacritty"] dim_inactive 0.0
-for_window [class="Alacritty"] dim_inactive 0.0
-for_window [app_id="xpdf"] dim_inactive 0.0
-for_window [class="XpdfReader"] dim_inactive 0.0
+# TEST-2(firefox-blank): for_window [app_id="Alacritty"] dim_inactive 0.0
+# TEST-2(firefox-blank): for_window [class="Alacritty"] dim_inactive 0.0
+# TEST-2(firefox-blank): for_window [app_id="xpdf"] dim_inactive 0.0
+# TEST-2(firefox-blank): for_window [class="XpdfReader"] dim_inactive 0.0
 # picom: firefox 100 focused / 95 unfocused
-for_window [app_id="firefox"] dim_inactive 0.05
-for_window [class="firefox"] dim_inactive 0.05
+# TEST-2(firefox-blank): for_window [app_id="firefox"] dim_inactive 0.05
+# TEST-2(firefox-blank): for_window [class="firefox"] dim_inactive 0.05
 
 # picom shadow-exclude: Notification / Conky / Notify-osd / Cairo-clock.
 # On Wayland dunst is a layer-shell surface and layer effects are off by
@@ -117,12 +127,12 @@ for_window [class="firefox"] dim_inactive 0.05
 # layer_effects "waybar" { blur enable; corner_radius 6; shadows enable; }
 
 #lock screen
-bindsym $mod+Shift+x exec /home/$USER/.config/scripts/lock
+bindsym $mod+Shift+x exec /home/$USER/.config/scripts/swaylock
 #brightness control
 bindsym XF86MonBrightnessUp exec brightnessctl set +1% 
 bindsym XF86MonBrightnessDown exec brightnessctl set 1%-
 # Use pactl to adjust volume in PulseAudio.
-set $refresh_i3status killall -SIGUSR1 i3status
+set $refresh_i3status killall -SIGUSR1 i3status-rs
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
@@ -141,8 +151,6 @@ floating_modifier $mod
 # move tiling windows via drag & drop by left-clicking into the title bar,
 # or left-clicking anywhere into the window while holding the floating modifier.
 tiling_drag titlebar
-#do not focus on the opened window
-no_focus [all]
 
 focus_follows_mouse yes
 
@@ -166,11 +174,16 @@ bindsym $mod+d exec --no-startup-id rofi -show drun
 # .desktop file. It is a wrapper around dmenu, so you need that installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
+# warp pointer to centre of focused window (Wayland replacement for the
+# i3 xdotool $mousemove); mouse_warping stays none so workspace switches
+# do not move the pointer
+set $mousemove exec ~/.config/sway/warp-mouse.sh
+
 # change focus
-bindsym $mod+$left focus left
-bindsym $mod+$down focus down
-bindsym $mod+$up focus up
-bindsym $mod+$right focus right
+bindsym $mod+$left focus left; $mousemove
+bindsym $mod+$down focus down; $mousemove
+bindsym $mod+$up focus up; $mousemove
+bindsym $mod+$right focus right; $mousemove
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Left focus left
@@ -267,7 +280,7 @@ bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'exit i3?' -B 'Yes' 'i3-msg exit'"
+bindsym $mod+Shift+e exec "swaynag -t warning -m 'exit sway?' -B 'Yes' 'swaymsg exit'"
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -311,7 +324,7 @@ bar {
 		urgent_workspace   #2f343a #900000 #ffffff
 	}
 	status_command i3status-rs /home/$USER/.config/i3status-rust/config.toml
-	tray_output primary
+	tray_output *
 	position top
 }
 
@@ -332,6 +345,12 @@ smart_borders on
 for_window [class="Sublime_text"] focus
 for_window [class="Sublime_text" title="Purchase"] focus none
 for_window [instance="scratchpad"] move to scratchpad, scratchpad show
+
+# xdg-desktop-portal-kde dialogs (file pickers, screenshot/screencast picker,
+# permission prompts, ...) get no size hint over xdg_toplevel -> always float,
+# but only fix size/position for the file/folder picker, not every portal dialog.
+for_window [app_id="org.freedesktop.impl.portal.desktop.kde"] floating enable
+for_window [app_id="org.freedesktop.impl.portal.desktop.kde" title="^Open (File|Folder)$"] resize set width 900 height 700, move position center
 #######################################################################
 # automatically start i3-config-wizard to offer the user to create a
 # keysym-based config which used their favorite modifier (alt or windows)

@@ -55,7 +55,7 @@ style = "Underline"
 unfocused_hollow = false
 
 [font]
-size =  10.0
+size =  15.0
 
 [font.bold]
 family = "Monaco"
