@@ -1,15 +1,18 @@
 # Bluetooth keyboard on a Linux + Windows dual boot (one profile)
 
-Values for this machine filled in. Works in fish and bash.
 
 **1. Keyboard:** `Fn` → hold `F12` 3 s, wait for the fast flash.
 
+
+Let KBD_MAC = DA:29:E2:A4:D8:82 ( the keyboard's MAC address )
+Let PC_MAC = 14:75:5B:5A:82:F9 ( the computer's MAC address )
+
 **2. Linux: pair**
 ```
-bluetoothctl remove DA:29:E2:A4:D8:82
+bluetoothctl remove KBD_MAC
 bluetoothctl --timeout 15 scan on
-bluetoothctl pair DA:29:E2:A4:D8:82
-bluetoothctl trust DA:29:E2:A4:D8:82
+bluetoothctl pair KBD_MAC
+bluetoothctl trust KBD_MAC
 ```
 
 **3–4. Windows:** remove the mWave in Settings → Bluetooth, `Fn` → hold `F12`, pair, then Shift + Shut down.
@@ -19,7 +22,7 @@ bluetoothctl trust DA:29:E2:A4:D8:82
 sudo pacman -S chntpw
 sudo mkdir -p /mnt/win
 sudo mount -t ntfs3 -o ro /dev/nvme0n1p3 /mnt/win
-sudo reged -x /mnt/win/Windows/System32/config/SYSTEM 'HKEY_LOCAL_MACHINE\SYSTEM' 'ControlSet001\Services\BTHPORT\Parameters\Keys\14755b5a82f9' /root/bt.reg
+sudo reged -x /mnt/win/Windows/System32/config/SYSTEM 'HKEY_LOCAL_MACHINE\SYSTEM' 'ControlSet001\Services\BTHPORT\Parameters\Keys\PC_MAC' /root/bt.reg
 sudo less /root/bt.reg
 ```
 In `less`, find the section ending `\da29e2a4d882` and note `LTK`, `KeyLength`, `EDIV`, `ERand`.
@@ -36,8 +39,8 @@ In order: `Key` (from `LTK`), `EncSize` (from `KeyLength`), `EDiv` (from `EDIV`)
 **7. Linux: write the key**
 ```
 sudo systemctl stop bluetooth
-sudo cp -a /var/lib/bluetooth/14:75:5B:5A:82:F9/DA:29:E2:A4:D8:82/info /var/lib/bluetooth/14:75:5B:5A:82:F9/DA:29:E2:A4:D8:82/info.bak
-env SUDO_EDITOR=nvim sudoedit /var/lib/bluetooth/14:75:5B:5A:82:F9/DA:29:E2:A4:D8:82/info
+sudo cp -a /var/lib/bluetooth/PC_MAC/KBD_MAC/info /var/lib/bluetooth/PC_MAC/KBD_MAC/info.bak
+env SUDO_EDITOR=nvim sudoedit /var/lib/bluetooth/PC_MAC/KBD_MAC/info
 ```
 Under `[LongTermKey]`, set `Key=`, `EncSize=`, `EDiv=`, `Rand=`. If `[PeripheralLongTermKey]` or `[SlaveLongTermKey]` exists, set the same `Key=` there. Save with `:wq`.
 
@@ -51,16 +54,16 @@ sudo systemctl start bluetooth
 
 **9. Verify**
 ```
-bluetoothctl info DA:29:E2:A4:D8:82 | grep -E 'Paired|Trusted|Connected'
+bluetoothctl info KBD_MAC | grep -E 'Paired|Trusted|Connected'
 grep mWave /proc/bus/input/devices
 ```
 
 **Recovery**
 ```
 bluetoothctl power off; bluetoothctl power on
-bluetoothctl block DA:29:E2:A4:D8:82
-bluetoothctl unblock DA:29:E2:A4:D8:82
-sudo cp -a /var/lib/bluetooth/14:75:5B:5A:82:F9/DA:29:E2:A4:D8:82/info.bak /var/lib/bluetooth/14:75:5B:5A:82:F9/DA:29:E2:A4:D8:82/info
+bluetoothctl block KBD_MAC
+bluetoothctl unblock KBD_MAC
+sudo cp -a /var/lib/bluetooth/PC_MAC/KBD_MAC/info.bak /var/lib/bluetooth/PC_MAC/KBD_MAC/info
 ```
 - Power cycle: when a connect or pair hangs with no error.
 - `block` / `unblock`: stop or resume a reconnect loop.
